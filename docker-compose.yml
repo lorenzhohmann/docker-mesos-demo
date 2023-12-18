@@ -32,6 +32,21 @@ services:
     ports:
       - "5051:5051"
 
+  mesos-agent2:
+    image: mesosphere/mesos-slave:1.6.2
+    container_name: mesos-agent1
+    hostname: mesos-agent1
+    command: --master=mesos-master:5050 --work_dir=/var/lib/mesos --no-switch_user
+    links:
+      - mesos-master
+    environment:
+      - MESOS_SYSTEMD_ENABLE_SUPPORT=false
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup
+    ports:
+      - "5052:5051"
+
   marathon:
     image: mesosphere/marathon:v1.6.587
     container_name: marathon
