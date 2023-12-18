@@ -14,6 +14,7 @@ services:
     command: --ip=0.0.0.0 --work_dir=/var/lib/mesos
     environment:
       - SWARM_MESOS_USER=root
+      - MESOS_SWITCH_USER=0
     ports:
       - "5050:5050"
 
@@ -25,10 +26,18 @@ services:
     links:
       - mesos-master
     environment:
+      - MESOS_PORT=5051
       - MESOS_SYSTEMD_ENABLE_SUPPORT=false
+      - MESOS_LOG_DIR=/var/log/mesos/slave
+      - MESOS_CONTAINERIZERS=docker,mesos
+      - MESOS_EXECUTOR_REGISTRATION_TIMEOUT=5mins
+      - MESOS_EXECUTOR_SHUTDOWN_GRACE_PERIOD=90secs
+      - MESOS_DOCKER_STOP_TIMEOUT=60secs
+      - MESOS_WORK_DIR=/tmp
     privileged: true
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "5051:5051"
 
@@ -40,12 +49,20 @@ services:
     links:
       - mesos-master
     environment:
+      - MESOS_PORT=5052
       - MESOS_SYSTEMD_ENABLE_SUPPORT=false
+      - MESOS_LOG_DIR=/var/log/mesos/slave
+      - MESOS_CONTAINERIZERS=docker,mesos
+      - MESOS_EXECUTOR_REGISTRATION_TIMEOUT=5mins
+      - MESOS_EXECUTOR_SHUTDOWN_GRACE_PERIOD=90secs
+      - MESOS_DOCKER_STOP_TIMEOUT=60secs
+      - MESOS_WORK_DIR=/tmp
     privileged: true
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
-      - "5052:5051"
+      - "5052:5052"
 
   marathon:
     image: mesosphere/marathon:v1.6.587
