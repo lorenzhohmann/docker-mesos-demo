@@ -1,9 +1,9 @@
 {
   "id": "my-job",
-  "cmd": "for i in $(seq 1 10); do echo \"Processing iteration $i\"; sleep 1; done && touch /tmp/healthy && exit 0",
+  "cmd": "for i in $(seq 1 30); do echo \"Processing iteration $i\"; sleep 1; done && touch /tmp/healthy && exit 0",
   "cpus": 2,
   "mem": 512,
-  "instances": 1,
+  "instances": 3,
   "healthChecks": [
     {
       "protocol": "COMMAND",
