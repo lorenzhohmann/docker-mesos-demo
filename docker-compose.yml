@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper:3.4.6
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+
+  mesos-master:
+    image: mesosphere/mesos-master:1.6.2
+    container_name: mesos-master
+    hostname: mesos-master
+    command: --ip=0.0.0.0 --work_dir=/var/lib/mesos
+    environment:
+      - SWARM_MESOS_USER=root
+    ports:
+      - "5050:5050"
+
+  mesos-agent1:
+    image: mesosphere/mesos-slave:1.6.2
+    container_name: mesos-agent1
+    hostname: mesos-agent1
+    command: --master=mesos-master:5050 --work_dir=/var/lib/mesos --no-switch_user
+    links:
+      - mesos-master
+    environment:
+      - MESOS_SYSTEMD_ENABLE_SUPPORT=false
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup
+    ports:
+      - "5051:5051"
+
+  marathon:
+    image: mesosphere/marathon:v1.6.587
+    container_name: marathon
+    hostname: marathon
+    command: --master mesos-master:5050 --zk zk://zookeeper:2181/marathon
+    depends_on:
+      - mesos-master
+      - zookeeper
+    ports:
+      - "8080:8080"
+    links:
+      - mesos-master
+      - zookeeper
