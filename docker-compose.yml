@@ -34,7 +34,7 @@ services:
 
   mesos-agent2:
     image: mesosphere/mesos-slave:1.6.2
-    2container_name: mesos-agent2
+    container_name: mesos-agent2
     hostname: mesos-agent2
     command: --master=mesos-master:5050 --work_dir=/var/lib/mesos --no-switch_user
     links:
