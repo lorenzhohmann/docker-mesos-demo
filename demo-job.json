@@ -1,0 +1,17 @@
+{
+  "id": "my-job",
+  "cmd": "for i in {1..180}; do echo \"Processing iteration $i\"; sleep 1; done && exit 0",
+  "cpus": 0.1,
+  "mem": 128,
+  "instances": 1,
+  "healthChecks": [
+    {
+      "protocol": "COMMAND",
+      "command": { "value": "true" },
+      "gracePeriodSeconds": 5,
+      "intervalSeconds": 1,
+      "maxConsecutiveFailures": 1,
+      "maxLaunchDelaySeconds": 10
+    }
+  ]
+}
