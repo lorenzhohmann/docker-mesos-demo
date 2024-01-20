@@ -5,7 +5,7 @@ services:
     image: wurstmeister/zookeeper:3.4.6
     container_name: zookeeper
     ports:
-      - "2181:2181"
+      - '2181:2181'
 
   mesos-master:
     image: mesosphere/mesos-master:1.6.2
@@ -16,7 +16,7 @@ services:
       - SWARM_MESOS_USER=root
       - MESOS_SWITCH_USER=0
     ports:
-      - "5050:5050"
+      - '5050:5050'
 
   mesos-agent1:
     image: mesosphere/mesos-slave:1.6.2
@@ -34,12 +34,13 @@ services:
       - MESOS_EXECUTOR_SHUTDOWN_GRACE_PERIOD=90secs
       - MESOS_DOCKER_STOP_TIMEOUT=60secs
       - MESOS_WORK_DIR=/tmp
+      - MESOS_RESOURCES=cpus:1;mem:1024;disk:10240
     privileged: true
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
-      - "5051:5051"
+      - '5051:5051'
 
   mesos-agent2:
     image: mesosphere/mesos-slave:1.6.2
@@ -57,12 +58,37 @@ services:
       - MESOS_EXECUTOR_SHUTDOWN_GRACE_PERIOD=90secs
       - MESOS_DOCKER_STOP_TIMEOUT=60secs
       - MESOS_WORK_DIR=/tmp
+      - MESOS_RESOURCES=cpus:1;mem:2048;disk:20480
     privileged: true
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
-      - "5052:5052"
+      - '5052:5052'
+
+  mesos-agent3:
+    image: mesosphere/mesos-slave:1.6.2
+    container_name: mesos-agent3
+    hostname: mesos-agent3
+    command: --master=mesos-master:5050 --work_dir=/var/lib/mesos --no-switch_user
+    links:
+      - mesos-master
+    environment:
+      - MESOS_PORT=5053
+      - MESOS_SYSTEMD_ENABLE_SUPPORT=false
+      - MESOS_LOG_DIR=/var/log/mesos/slave
+      - MESOS_CONTAINERIZERS=docker,mesos
+      - MESOS_EXECUTOR_REGISTRATION_TIMEOUT=5mins
+      - MESOS_EXECUTOR_SHUTDOWN_GRACE_PERIOD=90secs
+      - MESOS_DOCKER_STOP_TIMEOUT=60secs
+      - MESOS_WORK_DIR=/tmp
+      - MESOS_RESOURCES=cpus:4;mem:4096;disk:5120
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - '5053:5053'
 
   marathon:
     image: mesosphere/marathon:v1.6.587
@@ -73,7 +99,24 @@ services:
       - mesos-master
       - zookeeper
     ports:
-      - "8080:8080"
+      - '8080:8080'
+    links:
+      - mesos-master
+      - zookeeper
+
+  chronos:
+    image: mesosphere/chronos:v3.0.0
+    container_name: chronos
+    command: --master mesos-master:5050 --zk_hosts zk://zookeeper:2181
+    environment:
+      - PORT0=8080
+      - PORT1=8081
+    depends_on:
+      - mesos-master
+      - zookeeper
+    ports:
+      - '8082:8080'
+      - '8081:8081'
     links:
       - mesos-master
       - zookeeper

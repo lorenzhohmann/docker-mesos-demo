@@ -1,0 +1,20 @@
+{
+  "id": "cmd-job",
+  "cmd": "trap 'exit 0' EXIT; for i in $(seq 1 10); do echo \"Processing iteration $i\"; sleep 1; done && touch /tmp/healthy",
+  "cpus": 1,
+  "mem": 512,
+  "instances": 3,
+  "maxLaunchDelaySeconds": 3600,
+  "healthChecks": [
+    {
+      "protocol": "COMMAND",
+      "command": {
+        "value": "[ -f /tmp/healthy ]"
+      },
+      "gracePeriodSeconds": 60,
+      "intervalSeconds": 1,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 1
+    }
+  ]
+}

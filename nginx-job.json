@@ -1,0 +1,39 @@
+{
+  "id": "nginx-job",
+  "cmd": null,
+  "cpus": 4,
+  "mem": 2048,
+  "disk": 5120,
+  "instances": 1,
+  "container": {
+    "docker": {
+      "image": "nginx"
+    },
+    "type": "DOCKER"
+  },
+  "networks": [
+    {
+      "mode": "host"
+    }
+  ],
+  "portDefinitions": [
+    {
+      "port": 0,
+      "protocol": "tcp",
+      "name": null,
+      "labels": null
+    }
+  ],
+  "env": {},
+  "labels": {},
+  "healthChecks": [
+    {
+      "protocol": "HTTP",
+      "path": "/",
+      "portIndex": 0,
+      "gracePeriodSeconds": 5,
+      "intervalSeconds": 10,
+      "maxConsecutiveFailures": 10
+    }
+  ]
+}
